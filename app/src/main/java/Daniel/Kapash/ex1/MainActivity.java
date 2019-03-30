@@ -39,14 +39,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view){
-        Log.d("clicked", "xoxoxoxoxoxoxoxo");
         switch (view.getId()){
+
             case R.id.button:
-                Log.d("clicked", "xoxoxoxoxoxoxoxo");
+                String message = editText.getText().toString();
+                editText.setText("");
+                Log.d("send Message Debug", "button!!!!!");
+                if (!message.equals("")) {
+                    String feed = textView.getText().toString();
+                    feed = feed + "\n" + message;
+                    textView.setText(feed);
+                }
                 break;
+
             case R.id.editText:
                 Log.d("clicked", "editText!!");
                 break;
+
             case R.id.textView:
                 Log.d("clicked", "textView!!");
                 break;
@@ -59,17 +68,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onSaveInstanceState(outState);
     }
 
-
-    public void sendMessage(View view) {
-        EditText editText = findViewById(R.id.editText);
-        String message = editText.getText().toString();
-        editText.setText("");
-        TextView textView = findViewById(R.id.textView);
-        Log.d("send Message Debug", "button pressed!");
-        if (!message.equals("")) {
-            String feed = textView.getText().toString();
-            feed = feed + "\n" + message;
-            textView.setText(feed);
-        }
-    }
 }
