@@ -27,8 +27,37 @@ public class ChatMessageRecyclerUtils {
     }
 
 
-//    static class ChatMessageAdapter extends List
+    static class ChatMessageAdapter extends ListAdapter<ChatMessage, ChatMessageHolder> {
 
+        public ChatMessageAdapter() {
+            super(new ChatMessageCallback());
+        }
+
+        @NonNull
+        @Override
+        public ChatMessageHolder onCreateViewHolder(@NonNull ViewGroup parent, int i) {
+            Context context = parent.getContext();
+            View itemView = LayoutInflater.from(context).inflate(R.layout.item_chat_message, parent,
+                    false);
+            final ChatMessageHolder holder = new ChatMessageHolder(itemView);
+            return holder;
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ChatMessageHolder holder, int position) {
+            ChatMessage message = getItem(position);
+            holder.text.setText(message.getText());
+        }
+    }
+
+
+    static class ChatMessageHolder extends RecyclerView.ViewHolder {
+        public final TextView text;
+        public ChatMessageHolder(View itemView) {
+            super(itemView);
+            text = itemView.findViewById(R.id.message_text);
+        }
+    }
 
 
 }

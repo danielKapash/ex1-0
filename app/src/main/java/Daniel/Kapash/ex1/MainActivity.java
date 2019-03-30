@@ -1,7 +1,10 @@
 package Daniel.Kapash.ex1;
 
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
@@ -9,10 +12,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
-    final String TEXT_VIEW_KEY = "1";
-    TextView textView;
+    final String STRING_MESSAGES_KEY = "String Messages";
+
+    private ChatMessageRecyclerUtils.ChatMessageAdapter adapter
+            = new ChatMessageRecyclerUtils.ChatMessageAdapter();
+
+    private ArrayList<ChatMessage> messages = new ArrayList<>();
+
     EditText editText;
     Button button;
 
@@ -21,19 +31,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        this.textView = findViewById(R.id.textView);
         this.editText = findViewById(R.id.editText);
         this.button = findViewById(R.id.button);
 
-        textView.setOnClickListener(this);
+        RecyclerView recyclerView = findViewById(R.id.chat_message_recycler);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(
+                this, LinearLayoutManager.VERTICAL, false));
+
+        recyclerView.setAdapter(adapter);
+
         button.setOnClickListener(this);
         editText.setOnClickListener(this);
 
-        textView.setMovementMethod(new ScrollingMovementMethod());
 
         if (savedInstanceState != null) {
-            textView.setText(savedInstanceState.getString(TEXT_VIEW_KEY));
+            ArrayList<String> strMessages = savedInstanceState.getStringArrayList(STRING_MESSAGES_KEY);
+            for (int i=0; i < strMessages.size(); i++){
+                messages.add(new ChatMessage(strMessages.get(i)));
+            }
         }
+
+        adapter.submitList(messages);
+
     }
 
 
@@ -44,11 +64,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.button:
                 String message = editText.getText().toString();
                 editText.setText("");
-                Log.d("send Message Debug", "button!!!!!");
-                if (!message.equals("")) {
-                    String feed = textView.getText().toString();
-                    feed = feed + "\n" + message;
-                    textView.setText(feed);
+                Log.d("clicked", "button!!!!!");
+                if (message.equals("")) {
+                    Snackbar.make(editText, "Can't send empty message..", Snackbar.LENGTH_SHORT).show();
+                } else {
+                    messages.add(new ChatMessage(message));
+                    adapter.submitList(messages);
                 }
                 break;
 
@@ -56,15 +77,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.d("clicked", "editText!!");
                 break;
 
-            case R.id.textView:
-                Log.d("clicked", "textView!!");
-                break;
         }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putString(TEXT_VIEW_KEY, textView.getText().toString());
+        ArrayList<String> strMessages = new ArrayList<>();
+        for (int i=0; i < messages.size(); i++){
+            strMessages.add(messages.get(i).getText());
+        }
+        outState.putStringArrayList(STRING_MESSAGES_KEY, strMessages);
         super.onSaveInstanceState(outState);
     }
 
