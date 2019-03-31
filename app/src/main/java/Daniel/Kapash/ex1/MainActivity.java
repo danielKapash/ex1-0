@@ -17,6 +17,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     final String STRING_MESSAGES_KEY = "String Messages";
+    final String EMPTY_MESSAGE_ERROR = "Can't send empty message..";
 
     private ChatMessageRecyclerUtils.ChatMessageAdapter adapter
             = new ChatMessageRecyclerUtils.ChatMessageAdapter();
@@ -52,7 +53,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
-        adapter.submitList(messages);
+        ArrayList<ChatMessage> messagesCopy = new ArrayList<>(this.messages);
+        adapter.submitList(messagesCopy);
 
     }
 
@@ -66,10 +68,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 editText.setText("");
                 Log.d("clicked", "button!!!!!");
                 if (message.equals("")) {
-                    Snackbar.make(editText, "Can't send empty message..", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(editText, EMPTY_MESSAGE_ERROR, Snackbar.LENGTH_SHORT).show();
                 } else {
                     messages.add(new ChatMessage(message));
-                    adapter.submitList(messages);
+                    ArrayList<ChatMessage> messagesCopy = new ArrayList<>(this.messages);
+                    adapter.submitList(messagesCopy);
                 }
                 break;
 
