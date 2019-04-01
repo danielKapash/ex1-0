@@ -1,23 +1,28 @@
 package Daniel.Kapash.ex1;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
-    final String STRING_MESSAGES_KEY = "String Messages";
-    final String EMPTY_MESSAGE_ERROR = "Can't send empty message..";
+    private final String STRING_MESSAGES_KEY = "String Messages";
+    private final String EMPTY_MESSAGE_ERROR = "Can't send empty message..";
+    private final String SP_MESSAGES_JSON = "chat_messages";
 
     private ChatMessageRecyclerUtils.ChatMessageAdapter adapter
             = new ChatMessageRecyclerUtils.ChatMessageAdapter();
@@ -46,16 +51,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         editText.setOnClickListener(this);
 
 
-        if (savedInstanceState != null) {
-            ArrayList<String> strMessages = savedInstanceState.getStringArrayList(STRING_MESSAGES_KEY);
-            for (int i=0; i < strMessages.size(); i++){
-                messages.add(new ChatMessage(strMessages.get(i)));
-            }
-        }
 
-        ArrayList<ChatMessage> messagesCopy = new ArrayList<>(this.messages);
+//        if (savedInstanceState != null) {
+//            ArrayList<String> strMessages = savedInstanceState.getStringArrayList(STRING_MESSAGES_KEY);
+//            for (int i=0; i < strMessages.size(); i++){
+//                messages.add(new ChatMessage(strMessages.get(i)));
+//            }
+//        }
+
+        ArrayList<ChatMessage> tempMessages = getMessagesFromSP();
+        if (tempMessages != null)
+            messages = tempMessages;
+        else
+            messages = new ArrayList<>();
+        updateMessagesRecyclerViewAdapter(messages);
+
+    }
+
+
+    private void updateMessagesRecyclerViewAdapter(ArrayList<ChatMessage> messages) {
+
+        ArrayList<ChatMessage> messagesCopy = new ArrayList<>(messages);
         adapter.submitList(messagesCopy);
+    }
 
+
+    private ArrayList<ChatMessage> getMessagesFromSP() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        String messagesJson = sp.getString(SP_MESSAGES_JSON, "");
+        Gson gson = new Gson();
+        Type chatMessageType = new TypeToken<ArrayList<ChatMessage>>(){}.getType();
+        return  gson.fromJson(messagesJson, chatMessageType);
+    }
+
+
+    private void saveMessagesToSP(ArrayList<ChatMessage> messages) {
+        Gson gson = new Gson();
+        String messagesJson = gson.toJson(messages);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString(SP_MESSAGES_JSON, messagesJson);
+        editor.apply();
     }
 
 
@@ -71,8 +107,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Snackbar.make(editText, EMPTY_MESSAGE_ERROR, Snackbar.LENGTH_SHORT).show();
                 } else {
                     messages.add(new ChatMessage(message));
-                    ArrayList<ChatMessage> messagesCopy = new ArrayList<>(this.messages);
-                    adapter.submitList(messagesCopy);
+                    saveMessagesToSP(messages);
+                    updateMessagesRecyclerViewAdapter(messages);
                 }
                 break;
 
@@ -83,14 +119,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        ArrayList<String> strMessages = new ArrayList<>();
-        for (int i=0; i < messages.size(); i++){
-            strMessages.add(messages.get(i).getText());
-        }
-        outState.putStringArrayList(STRING_MESSAGES_KEY, strMessages);
-        super.onSaveInstanceState(outState);
-    }
+//    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        ArrayList<String> strMessages = new ArrayList<>();
+//        for (int i=0; i < messages.size(); i++){
+//            strMessages.add(messages.get(i).getText());
+//        }
+//        outState.putStringArrayList(STRING_MESSAGES_KEY, strMessages);
+//        super.onSaveInstanceState(outState);
+//    }
+
 
 }

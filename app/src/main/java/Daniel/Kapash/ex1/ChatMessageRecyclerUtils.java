@@ -13,6 +13,10 @@ import android.widget.TextView;
 
 public class ChatMessageRecyclerUtils {
 
+    interface MessageLongClickListener {
+        void onMessageLongClick(ChatMessage message);
+    }
+
     static class ChatMessageCallback extends DiffUtil.ItemCallback<ChatMessage> {
 
         @Override
@@ -33,6 +37,8 @@ public class ChatMessageRecyclerUtils {
             super(new ChatMessageCallback());
         }
 
+        public ChatMessageCallback callback;
+
         @NonNull
         @Override
         public ChatMessageHolder onCreateViewHolder(@NonNull ViewGroup parent, int i) {
@@ -40,6 +46,16 @@ public class ChatMessageRecyclerUtils {
             View itemView = LayoutInflater.from(context).inflate(R.layout.item_chat_message, parent,
                     false);
             final ChatMessageHolder holder = new ChatMessageHolder(itemView);
+            holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    ChatMessage message = getItem(holder.getAdapterPosition());
+                    if (callback != null) {
+                        callback.on
+                    }
+                    return false;
+                }
+            });
             return holder;
         }
 
