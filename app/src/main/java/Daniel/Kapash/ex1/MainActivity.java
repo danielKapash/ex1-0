@@ -77,6 +77,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             messages = tempMessages;
         else
             messages = new ArrayList<>();
+
+        Log.d("messages count", "count: " + messages.size());
         updateMessagesRecyclerViewAdapter(messages);
 
 
@@ -150,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(DialogInterface dialog, int which) {
         if ((which == DialogInterface.BUTTON_POSITIVE) && (longPressedMessageToDelete != null)) {
             messages.remove(longPressedMessageToDelete);
+            longPressedMessageToDelete = null;
             saveMessagesToSP(messages);
             updateMessagesRecyclerViewAdapter(messages);
         }
