@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 public class ChatMessageRecyclerUtils {
 
-    interface MessageLongClickListener {
+    interface MessageLongClickCallBack {
         void onMessageLongClick(ChatMessage message);
     }
 
@@ -37,7 +37,7 @@ public class ChatMessageRecyclerUtils {
             super(new ChatMessageCallback());
         }
 
-        public ChatMessageCallback callback;
+        public MessageLongClickCallBack callback;
 
         @NonNull
         @Override
@@ -50,10 +50,9 @@ public class ChatMessageRecyclerUtils {
                 @Override
                 public boolean onLongClick(View v) {
                     ChatMessage message = getItem(holder.getAdapterPosition());
-                    if (callback != null) {
-                        callback.on
-                    }
-                    return false;
+                    if (callback != null)
+                        callback.onMessageLongClick(message);
+                    return true;
                 }
             });
             return holder;

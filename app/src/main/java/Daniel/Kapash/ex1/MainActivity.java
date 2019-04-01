@@ -1,8 +1,10 @@
 package Daniel.Kapash.ex1;
 
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,11 +20,16 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener,
+        ChatMessageRecyclerUtils.MessageLongClickCallBack, DialogInterface.OnClickListener {
 
     private final String STRING_MESSAGES_KEY = "String Messages";
     private final String EMPTY_MESSAGE_ERROR = "Can't send empty message..";
     private final String SP_MESSAGES_JSON = "chat_messages";
+    private final String DELETE_MESSAGE_DIALOG_TEXT = "Delete message?";
+    private final String DELETE_MESSAGE_DIALOG_CANCEL = "Cancel";
+    private final String DELETE_MESSAGE_DIALOG_DELETE = "Delete";
+
 
     private ChatMessageRecyclerUtils.ChatMessageAdapter adapter
             = new ChatMessageRecyclerUtils.ChatMessageAdapter();
@@ -31,6 +38,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     EditText editText;
     Button button;
+
+    AlertDialog deleteMessageDialog;
+
+    ChatMessage longPressedMessageToDelete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +57,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 this, LinearLayoutManager.VERTICAL, false));
 
         recyclerView.setAdapter(adapter);
+
+        adapter.callback = this;
 
         button.setOnClickListener(this);
         editText.setOnClickListener(this);
@@ -65,6 +78,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         else
             messages = new ArrayList<>();
         updateMessagesRecyclerViewAdapter(messages);
+
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setMessage(DELETE_MESSAGE_DIALOG_TEXT);
+        alertDialogBuilder.setNegativeButton(DELETE_MESSAGE_DIALOG_CANCEL,  this);
+        alertDialogBuilder.setPositiveButton(DELETE_MESSAGE_DIALOG_DELETE,  this);
+        deleteMessageDialog = alertDialogBuilder.create();
 
     }
 
@@ -116,6 +136,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.d("clicked", "editText!!");
                 break;
 
+        }
+    }
+
+    @Override
+    public void onMessageLongClick(ChatMessage message) {
+        longPressedMessageToDelete = message;
+        deleteMessageDialog.show();
+    }
+
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        if ((which == DialogInterface.BUTTON_POSITIVE) && (longPressedMessageToDelete != null)) {
+            messages.remove(longPressedMessageToDelete);
+            saveMessagesToSP(messages);
+            updateMessagesRecyclerViewAdapter(messages);
         }
     }
 
