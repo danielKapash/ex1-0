@@ -64,14 +64,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         editText.setOnClickListener(this);
 
 
-
-//        if (savedInstanceState != null) {
-//            ArrayList<String> strMessages = savedInstanceState.getStringArrayList(STRING_MESSAGES_KEY);
-//            for (int i=0; i < strMessages.size(); i++){
-//                messages.add(new ChatMessage(strMessages.get(i)));
-//            }
-//        }
-
         ArrayList<ChatMessage> tempMessages = getMessagesFromSP();
         if (tempMessages != null)
             messages = tempMessages;
@@ -141,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
     @Override
     public void onMessageLongClick(ChatMessage message) {
         longPressedMessageToDelete = message;
@@ -157,16 +150,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             updateMessagesRecyclerViewAdapter(messages);
         }
     }
-
-//    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        ArrayList<String> strMessages = new ArrayList<>();
-//        for (int i=0; i < messages.size(); i++){
-//            strMessages.add(messages.get(i).getText());
-//        }
-//        outState.putStringArrayList(STRING_MESSAGES_KEY, strMessages);
-//        super.onSaveInstanceState(outState);
-//    }
 
 
 }
