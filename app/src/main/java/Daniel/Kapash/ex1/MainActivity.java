@@ -23,9 +23,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
         ChatMessageRecyclerUtils.MessageLongClickCallBack, DialogInterface.OnClickListener {
 
-    private final String STRING_MESSAGES_KEY = "String Messages";
     private final String EMPTY_MESSAGE_ERROR = "Can't send empty message..";
-    private final String SP_MESSAGES_JSON = "chat_messages";
     private final String DELETE_MESSAGE_DIALOG_TEXT = "Delete message?";
     private final String DELETE_MESSAGE_DIALOG_CANCEL = "Cancel";
     private final String DELETE_MESSAGE_DIALOG_DELETE = "Delete";
@@ -34,14 +32,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ChatMessageRecyclerUtils.ChatMessageAdapter adapter
             = new ChatMessageRecyclerUtils.ChatMessageAdapter();
 
-    private ArrayList<ChatMessage> messages = new ArrayList<>();
-
     EditText editText;
     Button button;
 
     AlertDialog deleteMessageDialog;
 
     ChatMessage longPressedMessageToDelete;
+
+    ChatApp app;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,14 +62,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         editText.setOnClickListener(this);
 
 
-        ArrayList<ChatMessage> tempMessages = getMessagesFromSP();
-        if (tempMessages != null)
-            messages = tempMessages;
-        else
-            messages = new ArrayList<>();
+        app = (ChatApp) getApplicationContext();
 
-        Log.d("messages count", "count: " + messages.size());
-        updateMessagesRecyclerViewAdapter(messages);
+        adapter.submitList(app.getMessages());
 
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
@@ -83,30 +76,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    private void updateMessagesRecyclerViewAdapter(ArrayList<ChatMessage> messages) {
-
-        ArrayList<ChatMessage> messagesCopy = new ArrayList<>(messages);
-        adapter.submitList(messagesCopy);
-    }
-
-
-    private ArrayList<ChatMessage> getMessagesFromSP() {
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        String messagesJson = sp.getString(SP_MESSAGES_JSON, "");
-        Gson gson = new Gson();
-        Type chatMessageType = new TypeToken<ArrayList<ChatMessage>>(){}.getType();
-        return  gson.fromJson(messagesJson, chatMessageType);
-    }
-
-
-    private void saveMessagesToSP(ArrayList<ChatMessage> messages) {
-        Gson gson = new Gson();
-        String messagesJson = gson.toJson(messages);
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = sp.edit();
-        editor.putString(SP_MESSAGES_JSON, messagesJson);
-        editor.apply();
-    }
 
 
     @Override
@@ -114,15 +83,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId()){
 
             case R.id.button:
-                String message = editText.getText().toString();
+                String messageText = editText.getText().toString();
                 editText.setText("");
                 Log.d("clicked", "button!!!!!");
-                if (message.equals("")) {
+                if (messageText.equals("")) {
                     Snackbar.make(editText, EMPTY_MESSAGE_ERROR, Snackbar.LENGTH_SHORT).show();
                 } else {
-                    messages.add(new ChatMessage(message));
-                    saveMessagesToSP(messages);
-                    updateMessagesRecyclerViewAdapter(messages);
+                    app.addMessage(new ChatMessage(messageText));
+                    adapter.submitList(app.getMessages());
                 }
                 break;
 
@@ -144,10 +112,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(DialogInterface dialog, int which) {
         if ((which == DialogInterface.BUTTON_POSITIVE) && (longPressedMessageToDelete != null)) {
-            messages.remove(longPressedMessageToDelete);
+            app.deleteMessage(longPressedMessageToDelete);
             longPressedMessageToDelete = null;
-            saveMessagesToSP(messages);
-            updateMessagesRecyclerViewAdapter(messages);
+            adapter.submitList(app.getMessages());
         }
     }
 
