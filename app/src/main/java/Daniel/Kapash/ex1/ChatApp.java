@@ -1,3 +1,5 @@
+// tag: v2
+
 package Daniel.Kapash.ex1;
 
 import android.app.Application;
