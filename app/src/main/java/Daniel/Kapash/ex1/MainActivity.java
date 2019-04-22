@@ -3,6 +3,7 @@ package Daniel.Kapash.ex1;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -21,8 +22,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.ViewModelProviders;
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
         ChatMessageRecyclerUtils.MessageLongClickCallBack, DialogInterface.OnClickListener {
@@ -77,9 +77,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         alertDialogBuilder.setPositiveButton(DELETE_MESSAGE_DIALOG_DELETE,  this);
         deleteMessageDialog = alertDialogBuilder.create();
 
-        ChatAppViewModel model = ViewModelProviders.of(this).get(ChatAppViewModel.class);
-        model.getUsers().observe(this, users -> {
-            // update UI
+        ChatAppViewModel viewModel = ViewModelProviders.of(this).get(ChatAppViewModel.class);
+        viewModel.getUsers().observe(this, new Observer<ArrayList<ChatMessage>>() {
+            @Override
+            public void onChanged(@Nullable ArrayList<ChatMessage> dbMessages) {
+                Log.d("onChanged: ", "changed!!!");
+                adapter.submitList(new ArrayList<>(dbMessages));
+            }
         });
 
 

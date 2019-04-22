@@ -6,13 +6,14 @@ import android.support.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.*;
+import com.google.firebase.firestore.EventListener;
 
 import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import javax.annotation.Nullable;
 
 public class ChatAppViewModel extends ViewModel {
 
@@ -24,7 +25,7 @@ public class ChatAppViewModel extends ViewModel {
 
     public LiveData<ArrayList<ChatMessage>> getUsers() {
         if (messages == null) {
-            messages = new MutableLiveData<ArrayList<ChatMessage>>();
+            messages = new MutableLiveData<>();
             loadMessages();
         }
         return messages;
@@ -35,14 +36,30 @@ public class ChatAppViewModel extends ViewModel {
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                final ArrayList<ChatMessage> messagesFromDB = new ArrayList<>();
                 db.collection("messages").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        ArrayList<ChatMessage> messagesFromDB = new ArrayList<>();
                         if (task.isSuccessful()) {
-                            for(QueryDocumentSnapshot snapshot : task.getResult()) {
-                                messagesFromDB.add(snapshot.toObject(ChatMessage.class));
+                            for(DocumentSnapshot document : task.getResult()) {
+                                messagesFromDB.add(document.toObject(ChatMessage.class));
                             }
+                        }
+                        messages.setValue(messagesFromDB);
+                    }
+                });
+            }
+        });
+
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                db.collection("messages").addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        ArrayList<ChatMessage> messagesFromDB = new ArrayList<>();
+                        for (DocumentSnapshot document : queryDocumentSnapshots) {
+                            messagesFromDB.add(document.toObject(ChatMessage.class));
                         }
                         messages.setValue(messagesFromDB);
                     }

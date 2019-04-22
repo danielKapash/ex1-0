@@ -2,16 +2,22 @@ package Daniel.Kapash.ex1;
 import java.util.*;
 
 
-public class ChatMessage implements Comparable<ChatMessage> {
+public class ChatMessage {
 
     private final String text;
     private final int id;
-    private final Date timeStamp;
+    private final long timeStamp;
+
+    ChatMessage(){
+        text = "";
+        id = -1;
+        timeStamp = 0;
+    }
 
     ChatMessage(String text, int id) {
         this.text = text;
         this.id = id;
-        timeStamp = Calendar.getInstance().getTime();
+        timeStamp = Calendar.getInstance().getTime().getTime();
     }
 
     public String getText() {
@@ -22,14 +28,10 @@ public class ChatMessage implements Comparable<ChatMessage> {
         return id;
     }
 
-    public Date getTimeStamp() {
+    public long getTimeStamp() {
         return timeStamp;
     }
 
-    @Override
-    public int compareTo(ChatMessage o) {
-        return timeStamp.compareTo(o.getTimeStamp());
-    }
 
     @Override
     public boolean equals(Object o) {

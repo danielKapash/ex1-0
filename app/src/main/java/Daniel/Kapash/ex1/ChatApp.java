@@ -14,8 +14,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.*;
 
-public class ChatApp extends Application
-        implements AsyncTasksManager.DBMessagesDownloadListener {
+public class ChatApp extends Application {
 
     private final String SP_MESSAGES_JSON = "chat_messages";
 
@@ -36,19 +35,10 @@ public class ChatApp extends Application
 
         readMessagesFromSP();
 
-        asyncTasksManager.getMessagesFromDB(this);
-
         Log.d("messages count", "count: " + messages.size());
     }
 
 
-    @Override
-    public void onMessagesDownloadedFromDb(boolean success, ArrayList<ChatMessage> messagesFromDB) {
-        if (success && (messagesFromDB != messages)){
-            messages = new ArrayList<>(messagesFromDB);
-            writeMessagesToSP();
-        }
-    }
 
     public ArrayList<ChatMessage> getMessages() {
         return new ArrayList<>(messages);
