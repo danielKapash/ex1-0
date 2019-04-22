@@ -13,12 +13,16 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.arch.lifecycle.*;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProviders;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
         ChatMessageRecyclerUtils.MessageLongClickCallBack, DialogInterface.OnClickListener {
@@ -73,8 +77,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         alertDialogBuilder.setPositiveButton(DELETE_MESSAGE_DIALOG_DELETE,  this);
         deleteMessageDialog = alertDialogBuilder.create();
 
-    }
+        ChatAppViewModel model = ViewModelProviders.of(this).get(ChatAppViewModel.class);
+        model.getUsers().observe(this, users -> {
+            // update UI
+        });
 
+
+    }
 
 
 
@@ -89,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (messageText.equals("")) {
                     Snackbar.make(editText, EMPTY_MESSAGE_ERROR, Snackbar.LENGTH_SHORT).show();
                 } else {
-                    app.addMessage(new ChatMessage(messageText));
+                    app.addMessage(new ChatMessage(messageText,0));
                     adapter.submitList(app.getMessages());
                 }
                 break;
