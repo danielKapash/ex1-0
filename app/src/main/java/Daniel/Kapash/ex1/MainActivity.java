@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (messageText.equals("")) {
                     Snackbar.make(editText, EMPTY_MESSAGE_ERROR, Snackbar.LENGTH_SHORT).show();
                 } else {
-                    app.addMessage(new ChatMessage(messageText,0));
+                    app.addMessage(new ChatMessage(messageText,app.getNextId()));
                 }
                 break;
 

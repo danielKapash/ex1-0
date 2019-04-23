@@ -24,6 +24,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -36,7 +37,7 @@ public class ChatApp extends Application {
     private ArrayList<ChatMessage> messages = new ArrayList<>();
 
 
-    private Integer nextId;
+    private Long nextId;
 
     private CollectionReference messagesDbRef;
 
@@ -72,8 +73,8 @@ public class ChatApp extends Application {
                             @Override
                             public void onSuccess(DocumentSnapshot documentSnapshot) {
                                 if (documentSnapshot.exists()) {
-                                    nextId = (Integer) documentSnapshot.get("next_id");
-                                    Log.d("READ_NEXT_ID", "next id: " + nextId);
+                                    nextId = documentSnapshot.getLong("next_id");
+                                    Log.d("DB", "next id: " + nextId);
                                 }
                             }
                         });
@@ -126,11 +127,11 @@ public class ChatApp extends Application {
         return new ArrayList<>(messages);
     }
 
+    public Long getNextId(){
+        return nextId;
+    }
 
-//    public void deleteMessage(ChatMessage message) {
-//        messages.remove(message);
-//        writeMessagesToSP();
-//    }
+
 
     public void deleteMessage(ChatMessage message) {
         messagesDbRef.document(message.getId().toString()).delete()
@@ -149,13 +150,45 @@ public class ChatApp extends Application {
     }
 
 
-    public void addMessage(ChatMessage message) {
-        messages.add(message);
-        writeMessagesToSP();
+    public void addMessage(final ChatMessage message) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                messagesDbRef.document(message.getId().toString()).set(message)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                updateNextId();
+                                Log.d("DB", "successfully added message to db.");
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d("DB", "Error: fail to add message to db.");
+                        }
+                });
+            }
+        });
     }
 
 
-
+    private void updateNextId() {
+        nextId += 1;
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                HashMap<String, Long> nextIdMap = new HashMap<>();
+                nextIdMap.put("next_id", nextId);
+                metaDataRef.document("nextChatMessageID").set(nextIdMap)
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d("DB", "Failed to update next id field");
+                            }
+                        });
+            }
+        });
+    }
 
 
     private void readMessagesFromSP() {

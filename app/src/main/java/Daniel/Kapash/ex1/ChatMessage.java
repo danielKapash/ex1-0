@@ -5,16 +5,16 @@ import java.util.*;
 public class ChatMessage {
 
     private final String text;
-    private final Integer id;
-    private final long timeStamp;
+    private final Long id;
+    private final Long timeStamp;
 
     ChatMessage(){
         text = "";
-        id = -1;
-        timeStamp = 0;
+        id = 0l;
+        timeStamp = 0l;
     }
 
-    ChatMessage(String text, Integer id) {
+    ChatMessage(String text, Long id) {
         this.text = text;
         this.id = id;
         timeStamp = Calendar.getInstance().getTime().getTime();
@@ -24,11 +24,11 @@ public class ChatMessage {
         return text;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public long getTimeStamp() {
+    public Long getTimeStamp() {
         return timeStamp;
     }
 
