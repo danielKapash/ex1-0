@@ -44,8 +44,8 @@ public class ChatAppViewModel extends ViewModel {
                             for(DocumentSnapshot document : task.getResult()) {
                                 messagesFromDB.add(document.toObject(ChatMessage.class));
                             }
+                            messages.setValue(messagesFromDB);
                         }
-                        messages.setValue(messagesFromDB);
                     }
                 });
             }

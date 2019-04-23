@@ -103,7 +103,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Snackbar.make(editText, EMPTY_MESSAGE_ERROR, Snackbar.LENGTH_SHORT).show();
                 } else {
                     app.addMessage(new ChatMessage(messageText,0));
-                    adapter.submitList(app.getMessages());
                 }
                 break;
 
@@ -127,7 +126,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if ((which == DialogInterface.BUTTON_POSITIVE) && (longPressedMessageToDelete != null)) {
             app.deleteMessage(longPressedMessageToDelete);
             longPressedMessageToDelete = null;
-            adapter.submitList(app.getMessages());
         }
     }
 

@@ -5,14 +5,29 @@ package Daniel.Kapash.ex1;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+import javax.annotation.Nullable;
 
 public class ChatApp extends Application {
 
@@ -20,24 +35,91 @@ public class ChatApp extends Application {
 
     private ArrayList<ChatMessage> messages = new ArrayList<>();
 
-    private AsyncTasksManager asyncTasksManager = new AsyncTasksManager();
+
+    private Integer nextId;
+
+    private CollectionReference messagesDbRef;
+
+    private CollectionReference metaDataRef;
+
+    Executor executor = Executors.newSingleThreadExecutor();
+
 
     @Override
     public void onCreate() {
         super.onCreate();
 
+        FirebaseApp.initializeApp(getApplicationContext());
 
-        // Create a new user with a first and last name
-        Map<String, Object> user = new HashMap<>();
-        user.put("first", "Ada");
-        user.put("last", "Lovelace");
-        user.put("born", 1815);
+        messagesDbRef = FirebaseFirestore.getInstance().collection("messages");
+        metaDataRef = FirebaseFirestore.getInstance().collection("meta data");
+
+        getNextIdFromDB();
 
         readMessagesFromSP();
+
+        updateMessagesFromDB();
 
         Log.d("messages count", "count: " + messages.size());
     }
 
+    private void getNextIdFromDB() {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                metaDataRef.document("nextChatMessageID").get()
+                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                if (documentSnapshot.exists()) {
+                                    nextId = (Integer) documentSnapshot.get("next_id");
+                                    Log.d("READ_NEXT_ID", "next id: " + nextId);
+                                }
+                            }
+                        });
+            }
+        });
+    }
+
+
+    private void updateMessagesFromDB() {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                messagesDbRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        ArrayList<ChatMessage> messagesFromDB = new ArrayList<>();
+                        if (task.isSuccessful()) {
+                            for(DocumentSnapshot document : task.getResult()) {
+                                messagesFromDB.add(document.toObject(ChatMessage.class));
+                            }
+                            messages = new ArrayList<>(messagesFromDB);
+                            writeMessagesToSP();
+                        }
+                    }
+                });
+            }
+        });
+
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                messagesDbRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        ArrayList<ChatMessage> messagesFromDB = new ArrayList<>();
+                        for (DocumentSnapshot document : queryDocumentSnapshots) {
+                            messagesFromDB.add(document.toObject(ChatMessage.class));
+                        }
+                        messages = new ArrayList<>(messagesFromDB);
+                        writeMessagesToSP();
+                    }
+                });
+            }
+        });
+
+    }
 
 
     public ArrayList<ChatMessage> getMessages() {
@@ -45,9 +127,25 @@ public class ChatApp extends Application {
     }
 
 
+//    public void deleteMessage(ChatMessage message) {
+//        messages.remove(message);
+//        writeMessagesToSP();
+//    }
+
     public void deleteMessage(ChatMessage message) {
-        messages.remove(message);
-        writeMessagesToSP();
+        messagesDbRef.document(message.getId().toString()).delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("DB", "Message successfully deleted from DB!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("DB", "Error deleting message from DB", e);
+                    }
+                });
     }
 
 

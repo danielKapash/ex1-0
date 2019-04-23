@@ -5,7 +5,7 @@ import java.util.*;
 public class ChatMessage {
 
     private final String text;
-    private final int id;
+    private final Integer id;
     private final long timeStamp;
 
     ChatMessage(){
@@ -14,7 +14,7 @@ public class ChatMessage {
         timeStamp = 0;
     }
 
-    ChatMessage(String text, int id) {
+    ChatMessage(String text, Integer id) {
         this.text = text;
         this.id = id;
         timeStamp = Calendar.getInstance().getTime().getTime();
@@ -24,7 +24,7 @@ public class ChatMessage {
         return text;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -38,7 +38,7 @@ public class ChatMessage {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChatMessage message = (ChatMessage) o;
-        return id == message.getId();
+        return id.equals(message.getId());
     }
 
     @Override
