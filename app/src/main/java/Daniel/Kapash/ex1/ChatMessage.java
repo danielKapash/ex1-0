@@ -1,4 +1,7 @@
 package Daniel.Kapash.ex1;
+
+import com.google.firebase.iid.FirebaseInstanceId;
+
 import java.util.*;
 
 
@@ -6,18 +9,21 @@ public class ChatMessage {
 
     private final String text;
     private final Long id;
-    private final Long timeStamp;
+    private final String timeStamp;
+    private final String InstanceID;
 
     ChatMessage(){
         text = "";
         id = 0l;
-        timeStamp = 0l;
+        timeStamp = "";
+        InstanceID = "";
     }
 
     ChatMessage(String text, Long id) {
         this.text = text;
         this.id = id;
-        timeStamp = Calendar.getInstance().getTime().getTime();
+        timeStamp = Calendar.getInstance().getTime().toString();
+        InstanceID = FirebaseInstanceId.getInstance().getId();
     }
 
     public String getText() {
@@ -28,8 +34,12 @@ public class ChatMessage {
         return id;
     }
 
-    public Long getTimeStamp() {
+    public String getTimeStamp() {
         return timeStamp;
+    }
+
+    public String getInstanceID() {
+        return InstanceID;
     }
 
 
