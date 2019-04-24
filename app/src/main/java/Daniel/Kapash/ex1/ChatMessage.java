@@ -10,20 +10,20 @@ public class ChatMessage {
     private final String text;
     private final Long id;
     private final String timeStamp;
-    private final String InstanceID;
+    private final String instanceID;
 
     ChatMessage(){
         text = "";
         id = 0l;
         timeStamp = "";
-        InstanceID = "";
+        instanceID = "";
     }
 
     ChatMessage(String text, Long id) {
         this.text = text;
         this.id = id;
         timeStamp = Calendar.getInstance().getTime().toString();
-        InstanceID = FirebaseInstanceId.getInstance().getId();
+        instanceID = FirebaseInstanceId.getInstance().getId();
     }
 
     public String getText() {
@@ -39,7 +39,7 @@ public class ChatMessage {
     }
 
     public String getInstanceID() {
-        return InstanceID;
+        return instanceID;
     }
 
 

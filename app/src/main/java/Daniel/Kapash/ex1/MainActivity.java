@@ -21,8 +21,9 @@ import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
-        ChatMessageRecyclerUtils.MessageLongClickCallBack, DialogInterface.OnClickListener {
+        ChatMessageRecyclerUtils.MessageLongClickCallBack {
 
+    private static final int DELETE_REQUEST_CODE = 12434;
     private final String EMPTY_MESSAGE_ERROR = "Can't send empty message..";
     private final String DELETE_MESSAGE_DIALOG_TEXT = "Delete message?";
     private final String DELETE_MESSAGE_DIALOG_CANCEL = "Cancel";
@@ -35,8 +36,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     EditText editText;
     Button button;
     TextView userNameTextView;
-
-    AlertDialog deleteMessageDialog;
 
     ChatMessage longPressedMessageToDelete;
 
@@ -76,17 +75,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         adapter.submitList(app.getMessages());
 
 
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        alertDialogBuilder.setMessage(DELETE_MESSAGE_DIALOG_TEXT);
-        alertDialogBuilder.setNegativeButton(DELETE_MESSAGE_DIALOG_CANCEL,  this);
-        alertDialogBuilder.setPositiveButton(DELETE_MESSAGE_DIALOG_DELETE,  this);
-        deleteMessageDialog = alertDialogBuilder.create();
-
         MainActivityViewModel viewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
         viewModel.getUsers().observe(this, new Observer<ArrayList<ChatMessage>>() {
             @Override
             public void onChanged(@Nullable ArrayList<ChatMessage> dbMessages) {
-                Log.d("onChanged: ", "changed!!!");
                 adapter.submitList(new ArrayList<>(dbMessages));
             }
         });
@@ -122,15 +114,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onMessageLongClick(ChatMessage message) {
         longPressedMessageToDelete = message;
-        deleteMessageDialog.show();
+        Intent intent = new Intent(this, DeleteMessageActivity.class);
+        intent.putExtra("text", message.getText());
+        intent.putExtra("instanceID", message.getInstanceID());
+        intent.putExtra("timeStamp", message.getTimeStamp());
+        startActivityForResult(intent, DELETE_REQUEST_CODE);
     }
 
 
     @Override
-    public void onClick(DialogInterface dialog, int which) {
-        if ((which == DialogInterface.BUTTON_POSITIVE) && (longPressedMessageToDelete != null)) {
-            app.deleteMessage(longPressedMessageToDelete);
-            longPressedMessageToDelete = null;
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if ((requestCode == DELETE_REQUEST_CODE) && (resultCode == RESULT_OK)) {
+            if (data.getBooleanExtra("delete", false)) {
+                app.deleteMessage(longPressedMessageToDelete);
+                longPressedMessageToDelete = null;
+            }
         }
     }
 
