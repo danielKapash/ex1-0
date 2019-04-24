@@ -1,6 +1,7 @@
 package Daniel.Kapash.ex1;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.arch.lifecycle.*;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -32,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     EditText editText;
     Button button;
+    TextView userNameTextView;
 
     AlertDialog deleteMessageDialog;
 
@@ -44,8 +47,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        this.editText = findViewById(R.id.editText);
-        this.button = findViewById(R.id.button);
+        editText = findViewById(R.id.editText);
+        button = findViewById(R.id.button);
+        userNameTextView = findViewById(R.id.user_name_text_view);
+
+        String userName = getIntent().getStringExtra("userName");
+
+        if (userName.equals(""))
+            userNameTextView.setText("");
+        else
+            userNameTextView.setText("Hello " + userName + "!");
 
         RecyclerView recyclerView = findViewById(R.id.chat_message_recycler);
 
