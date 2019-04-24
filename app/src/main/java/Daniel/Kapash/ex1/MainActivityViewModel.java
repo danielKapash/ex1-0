@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
 
 import javax.annotation.Nullable;
 
-public class ChatAppViewModel extends ViewModel {
+public class MainActivityViewModel extends ViewModel {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 

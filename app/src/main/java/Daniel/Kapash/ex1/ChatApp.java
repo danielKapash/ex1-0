@@ -36,7 +36,6 @@ public class ChatApp extends Application {
 
     private ArrayList<ChatMessage> messages = new ArrayList<>();
 
-
     private Long nextId;
 
     private CollectionReference messagesDbRef;
@@ -63,6 +62,7 @@ public class ChatApp extends Application {
 
         Log.d("messages count", "count: " + messages.size());
     }
+
 
     private void getNextIdFromDB() {
         executor.execute(new Runnable() {
@@ -212,4 +212,5 @@ public class ChatApp extends Application {
         editor.putString(SP_MESSAGES_JSON, messagesJson);
         editor.apply();
     }
+
 }

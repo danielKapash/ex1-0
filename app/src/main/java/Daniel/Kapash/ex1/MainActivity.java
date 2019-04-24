@@ -1,8 +1,6 @@
 package Daniel.Kapash.ex1;
 
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -16,10 +14,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.arch.lifecycle.*;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 
@@ -77,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         alertDialogBuilder.setPositiveButton(DELETE_MESSAGE_DIALOG_DELETE,  this);
         deleteMessageDialog = alertDialogBuilder.create();
 
-        ChatAppViewModel viewModel = ViewModelProviders.of(this).get(ChatAppViewModel.class);
+        MainActivityViewModel viewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
         viewModel.getUsers().observe(this, new Observer<ArrayList<ChatMessage>>() {
             @Override
             public void onChanged(@Nullable ArrayList<ChatMessage> dbMessages) {
