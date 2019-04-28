@@ -23,7 +23,7 @@ public class MainActivityViewModel extends ViewModel {
 
     private MutableLiveData<ArrayList<ChatMessage>> messages;
 
-    public LiveData<ArrayList<ChatMessage>> getUsers() {
+    public LiveData<ArrayList<ChatMessage>> getMessages() {
         if (messages == null) {
             messages = new MutableLiveData<>();
             loadMessages();

@@ -1,10 +1,8 @@
 package Daniel.Kapash.ex1;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,9 +23,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private static final int DELETE_REQUEST_CODE = 12434;
     private final String EMPTY_MESSAGE_ERROR = "Can't send empty message..";
-    private final String DELETE_MESSAGE_DIALOG_TEXT = "Delete message?";
-    private final String DELETE_MESSAGE_DIALOG_CANCEL = "Cancel";
-    private final String DELETE_MESSAGE_DIALOG_DELETE = "Delete";
+
 
 
     private ChatMessageRecyclerUtils.ChatMessageAdapter adapter
@@ -76,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         MainActivityViewModel viewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
-        viewModel.getUsers().observe(this, new Observer<ArrayList<ChatMessage>>() {
+        viewModel.getMessages().observe(this, new Observer<ArrayList<ChatMessage>>() {
             @Override
             public void onChanged(@Nullable ArrayList<ChatMessage> dbMessages) {
                 adapter.submitList(new ArrayList<>(dbMessages));
